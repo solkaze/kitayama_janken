@@ -58,7 +58,9 @@ with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5) a
                     user_hands = "humei"
 
                 cv2.putText(frame, f"user_hands: {user_hands}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                print("a");
+                print("a")
+                
+                print("b")
 
 
                 # 結果を画面に表示
