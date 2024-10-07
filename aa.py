@@ -27,6 +27,8 @@ with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5) a
             for landmarks in results.multi_hand_landmarks:
                 # 各指の位置を取得
                 flm = landmarks.landmark
+                
+                # 修正点1　べつに人差し指と中指を立たせていなくても判定されてしまう
 
                 finger_count = 0
                 # 人差し指が立っている
