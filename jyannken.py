@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 #from sklearn.neural_network import MLPClassifier
 #単純パーセプトロン
 from sklearn.linear_model import Perceptron
-
+#テストコメントアウト
 # MediaPipeの初期化
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
