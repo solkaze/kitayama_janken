@@ -128,6 +128,7 @@ def determine_winner(user_hands, ai_hands):
     
 
 # じゃんけんの結果を表示
+# じゃんけんの手を表示
 def display_janken_result(result):
     # result_label = tk.Label(root, text=result, font=("Helvetica", 24))
     # root.update()
