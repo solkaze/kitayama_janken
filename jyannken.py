@@ -211,7 +211,7 @@ def countdown(user_hands,ai_hands):
     root.update()
 
     # root.update()
-
+key = 0
 #メイン処理
 with mp_hands.Hands(min_detection_confidence=0.1, min_tracking_confidence=0.1) as hands:
     while cap.isOpened():
