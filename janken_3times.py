@@ -4,8 +4,10 @@ import time
 import random
 import numpy as np
 import tkinter as tk  # Tkinterをインポート
+import queue
 from PIL import Image, ImageTk
-from multiprocessing import Process, Queue # マルチスレッド
+from threading import Thread
+
 #多層ニューラルネットワーク
 #from sklearn.neural_network import MLPClassifier
 #単純パーセプトロン
@@ -283,86 +285,90 @@ gesture_start_time = None
 gesture_last = None
 total_time = 0
 #メイン処理
-with mp_hands.Hands(
-    static_image_mode=False,
-    max_num_hands=1,
-    min_detection_confidence=0.7) as hands:
-    q = Queue()
-    
-    p1 = Process(target=player_hands_thinking, args=(q,))
-    p2 = Process(target=ai_hands_thinking, args=(q,))
-    user_hands = 'humei'
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            continue
+if __name__ == "__main__":
+    with mp_hands.Hands(
+        static_image_mode=False,
+        max_num_hands=1,
+        min_detection_confidence=0.7) as hands:
+        q = queue.Queue()
+        user_hands = 'humei'
 
-        # フレームをRGBに変換
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                continue
 
-        # MediaPipeで手を検出
-        results = hands.process(frame_rgb)
+            # フレームをRGBに変換
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # 検出した手の情報を取得
-        # 開始前の表示処理
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # 各指の位置を取得
-                flm = hand_landmarks.landmark
+            # MediaPipeで手を検出
+            results = hands.process(frame_rgb)
 
-                # グー、チョキ、パーの判定
-                if is_fist(hand_landmarks.landmark):
-                    user_hands = "guu"
-                elif is_scissors(hand_landmarks.landmark):
-                    user_hands = "tyoki"
-                elif is_palm(hand_landmarks.landmark):
-                    user_hands = "pa"
-                else:
-                    user_hands = "humei"
-                
-                # 前回のジェスチャーと異なる場合、トータル時間をリセット
-                if user_hands != gesture_last:
-                    total_time = 0
-                    gesture_start_time = time.time()
-                    gesture_last = user_hands
-                else:
-                    # 同じジェスチャーの場合、gesture_start_timeがNoneでないことを確認してから経過時間を計算
-                    if gesture_start_time is None:
-                        gesture_start_time = time.time()  # ジェスチャーが初めて認識された場合に現在の時刻を設定
-                    total_time = time.time() - gesture_start_time
+            # 検出した手の情報を取得
+            # 開始前の表示処理
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    # 各指の位置を取得
+                    flm = hand_landmarks.landmark
 
-                cv2.putText(frame, f"user_hands: {user_hands}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    # グー、チョキ、パーの判定
+                    if is_fist(hand_landmarks.landmark):
+                        user_hands = "guu"
+                    elif is_scissors(hand_landmarks.landmark):
+                        user_hands = "tyoki"
+                    elif is_palm(hand_landmarks.landmark):
+                        user_hands = "pa"
+                    else:
+                        user_hands = "humei"
+                    
+                    # 前回のジェスチャーと異なる場合、トータル時間をリセット
+                    if user_hands != gesture_last:
+                        total_time = 0
+                        gesture_start_time = time.time()
+                        gesture_last = user_hands
+                    else:
+                        # 同じジェスチャーの場合、gesture_start_timeがNoneでないことを確認してから経過時間を計算
+                        if gesture_start_time is None:
+                            gesture_start_time = time.time()  # ジェスチャーが初めて認識された場合に現在の時刻を設定
+                        total_time = time.time() - gesture_start_time
 
-                # 結果を画面に表示
-                mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                    cv2.putText(frame, f"user_hands: {user_hands}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
-        # スタート
-        #　グーを三秒間認識した場合スタート
-        key = cv2.waitKey(1) & 0xFF
-        if user_hands == "guu" and total_time >= 3:
-            total_time = 0
-            gesture_start_time = None
-            #ai_hands = inference(user_hands) #推論を実行
-            #推論
-            if(user_hands == 'guu'):
-                j = 0
-            elif(user_hands == 'tyoki'):
-                j = 1
-            elif(user_hands == 'pa'):
-                j = 2
-            elif(user_hands == 'humei'):
-                j = -1
-            print("ch")
+                    # 結果を画面に表示
+                    mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+# フレームを表示
+            cv2.imshow('Hand Count', frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
+            # スタート
+            #　グーを三秒間認識した場合スタート
+            if user_hands == "guu" and total_time >= 3:
+                total_time = 0
+                gesture_start_time = None
+                #ai_hands = inference(user_hands) #推論を実行
+                #推論
+                if(user_hands == 'guu'):
+                    j = 0
+                elif(user_hands == 'tyoki'):
+                    j = 1
+                elif(user_hands == 'pa'):
+                    j = 2
+                elif(user_hands == 'humei'):
+                    j = -1
+                p1 = Thread(target=player_hands_thinking, args=(q,))
+                p2 = Thread(target=ai_hands_thinking, args=(q,))
+                p1.start()
+                p2.start()
+                res = [q.get(), q.get()]
+                p1.join()
+                p2.join()
+                res.sort()
+                print(res[0][1] , res[1][1])
 
-        # フレームを表示
-        cv2.imshow('Hand Count', frame)
-
-        if key == ord('q'):
-            break
-
-cap.release()
-cv2.destroyAllWindows()
-if key == ord('q'):
-    root.destroy()
-else:
-    root.mainloop()  # Tkinterウィンドウを表示
+    cap.release()
+    cv2.destroyAllWindows()
+    if key == ord('q'):
+        root.destroy()
+    else:
+        root.mainloop()  # Tkinterウィンドウを表示
