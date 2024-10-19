@@ -336,6 +336,12 @@ if __name__ == "__main__":
 
                     # 結果を画面に表示
                     mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                            
+            # フレームを表示
+            cv2.imshow('Hand Count', frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
             # スタート
             #　グーを三秒間認識した場合スタート
             if user_hands == "guu" and total_time >= 3:
@@ -360,12 +366,6 @@ if __name__ == "__main__":
                 p2.join()
                 res.sort()
                 print(res[0][1] , res[1][1])
-            
-            # フレームを表示
-            cv2.imshow('Hand Count', frame)
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):
-                break
 
     cap.release()
     cv2.destroyAllWindows()
