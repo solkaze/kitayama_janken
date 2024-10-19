@@ -318,8 +318,9 @@ with mp_hands.Hands(min_detection_confidence=0.1, min_tracking_confidence=0.1) a
                     ai_hands = 'tyoki'
                 elif(comp_choice == 2):
                     ai_hands = 'pa'
+                print("ch")
 
-            countdown(user_hands,ai_hands)  # カウンタダウンを開始
+            # countdown(user_hands,ai_hands)  # カウンタダウンを開始
 
         # フレームを表示
         cv2.imshow('Hand Count', frame)

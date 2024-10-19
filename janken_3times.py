@@ -5,6 +5,7 @@ import random
 import numpy as np
 import tkinter as tk  # Tkinterをインポート
 from PIL import Image, ImageTk
+from multiprocessing import Process, Queue # マルチスレッド
 #多層ニューラルネットワーク
 #from sklearn.neural_network import MLPClassifier
 #単純パーセプトロン
@@ -240,6 +241,42 @@ def is_palm(landmarks):
             return False
     return True
 
+def player_hands_thinking(q):
+
+    #idと手をセットでプッシュする
+    result = (1, user_hands)
+
+    # 決定した手をqueueに保存
+    q.put(result)
+
+def ai_hands_thinking(q):
+    #過去のじゃんけんの手(ベクトル形式)をscikit_learn形式に
+    Jprev_set = np.array([Jprev])
+    #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
+    jnow_set = np.array([j])
+
+    #コンピュータが過去の手から人間の現在の手を予測
+    jpredict = clf.predict(Jprev_set)
+
+    #予測を元にコンピュータが決めた手
+    #予測がグーならパー, チョキならグー, パーならチョキ
+    comp_choice = (jpredict[0]+2)%3
+
+    clf.partial_fit(Jprev_set, jnow_set)
+    
+    if(comp_choice == 0):
+        ai_hands = 'guu'
+    elif(comp_choice == 1):
+        ai_hands = 'tyoki'
+    elif(comp_choice == 2):
+        ai_hands = 'pa'
+    
+    #idと手をセットでプッシュする
+    result = (2, ai_hands)
+    
+    # 決定した手をqueueに保存
+    q.put(result)
+
 key = 0
 # 各ジェスチャーの計測時間と最後に認識されたジェスチャー
 gesture_start_time = None
@@ -250,6 +287,10 @@ with mp_hands.Hands(
     static_image_mode=False,
     max_num_hands=1,
     min_detection_confidence=0.7) as hands:
+    q = Queue()
+    
+    p1 = Process(target=player_hands_thinking, args=(q,))
+    p2 = Process(target=ai_hands_thinking, args=(q,))
     user_hands = 'humei'
     while cap.isOpened():
         ret, frame = cap.read()
@@ -261,7 +302,6 @@ with mp_hands.Hands(
 
         # MediaPipeで手を検出
         results = hands.process(frame_rgb)
-        tyoki_count =0  # チョキの指のカウント
 
         # 検出した手の情報を取得
         # 開始前の表示処理
@@ -312,40 +352,7 @@ with mp_hands.Hands(
                 j = 2
             elif(user_hands == 'humei'):
                 j = -1
-        
-            #不明の場合は出された手を記憶せずランダムで手を返す
-            if(j == -1):
-                ai_hands = random.choice(['guu', 'tyoki', 'pa'])
-            else:
-                #過去のじゃんけんの手(ベクトル形式)をscikit_learn形式に
-                Jprev_set = np.array([Jprev])
-                #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
-                jnow_set = np.array([j])
-
-                #コンピュータが過去の手から人間の現在の手を予測
-                jpredict = clf.predict(Jprev_set)
-
-                #人間の手
-                your_choice = j
-                #予測を元にコンピュータが決めた手
-                #予測がグーならパー, チョキならグー, パーならチョキ
-                comp_choice = (jpredict[0]+2)%3
-
-                clf.partial_fit(Jprev_set, jnow_set)
-
-                #過去の手の末尾に現在のコンピュータの手を追加
-                Jprev = np.append(Jprev[3:], janken_array[comp_choice])
-                #過去の手の末尾に現在の人間の手を追加
-                Jprev = np.append(Jprev[3:], janken_array[your_choice])
-
-                if(comp_choice == 0):
-                    ai_hands = 'guu'
-                elif(comp_choice == 1):
-                    ai_hands = 'tyoki'
-                elif(comp_choice == 2):
-                    ai_hands = 'pa'
-
-            countdown(user_hands,ai_hands)  # カウンタダウンを開始
+            print("ch")
 
         # フレームを表示
         cv2.imshow('Hand Count', frame)
