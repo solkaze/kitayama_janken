@@ -143,7 +143,7 @@ def display_janken_result(result):
 
     # 音楽ファイルのロードと再生
     if result == "You Win":
-        pygame.mixer.music.load('./ml-music/syouri.mp3')  # 勝ちの場合の音
+        pygame.mixer.music.load('./ml-music/kati.mp3')  # 勝ちの場合の音
     elif result == "AI Wins":
         pygame.mixer.music.load('./ml-music/make.mp3')    # 負けの場合の音（適切なファイル名に変更）
     elif result == "Draw":
