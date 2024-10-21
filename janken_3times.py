@@ -243,8 +243,9 @@ def is_palm(landmarks):
             return False
     return True
 
-def player_hands_thinking(q):
+window_name = 'Hand Count'
 
+def player_hands_thinking(q):
     #idと手をセットでプッシュする
     result = (1, user_hands)
 
@@ -292,6 +293,8 @@ if __name__ == "__main__":
         min_detection_confidence=0.7) as hands:
         q = queue.Queue()
         user_hands = 'humei'
+        
+        janken_start = False
 
         while cap.isOpened():
             ret, frame = cap.read()
@@ -312,11 +315,11 @@ if __name__ == "__main__":
                     flm = hand_landmarks.landmark
 
                     # グー、チョキ、パーの判定
-                    if is_fist(hand_landmarks.landmark):
+                    if is_fist(flm):
                         user_hands = "guu"
-                    elif is_scissors(hand_landmarks.landmark):
+                    elif is_scissors(flm):
                         user_hands = "tyoki"
-                    elif is_palm(hand_landmarks.landmark):
+                    elif is_palm(flm):
                         user_hands = "pa"
                     else:
                         user_hands = "humei"
@@ -336,37 +339,18 @@ if __name__ == "__main__":
 
                     # 結果を画面に表示
                     mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-                            
+            # スタート
+            #　グーを三秒間認識した場合スタート
+            if (user_hands == "guu" and total_time >= 3) or janken_start:
+                janken_start = True
+                total_time = 0
+                gesture_start_time = None
+                
             # フレームを表示
-            cv2.imshow('Hand Count', frame)
+            cv2.imshow(window_name, frame)
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 break
-            # スタート
-            #　グーを三秒間認識した場合スタート
-            if user_hands == "guu" and total_time >= 3:
-                total_time = 0
-                gesture_start_time = None
-                #ai_hands = inference(user_hands) #推論を実行
-                #推論
-                if(user_hands == 'guu'):
-                    j = 0
-                elif(user_hands == 'tyoki'):
-                    j = 1
-                elif(user_hands == 'pa'):
-                    j = 2
-                elif(user_hands == 'humei'):
-                    j = -1
-                p1 = Thread(target=player_hands_thinking, args=(q,))
-                p2 = Thread(target=ai_hands_thinking, args=(q,))
-                p1.start()
-                p2.start()
-                res = [q.get(), q.get()]
-                p1.join()
-                p2.join()
-                res.sort()
-                print(res[0][1] , res[1][1])
-
     cap.release()
     cv2.destroyAllWindows()
     if key == ord('q'):
