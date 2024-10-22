@@ -33,6 +33,8 @@ countdown_label.pack()
 result_label = tk.Label(root, font=("Helvetica", 24))
 result_label.pack()
 
+
+# 初期設定
 image_guu = Image.open('./ml-images/human_gu.png')
 photo_guu = ImageTk.PhotoImage(image_guu)
 image_label0 = tk.Label(root, image=photo_guu)
@@ -113,6 +115,11 @@ def display_image(image_path_ai,image_path_user):
     root.update()
     time.sleep(1)
 
+def init_game_image():
+    image_path_ai = './ml-images/human_gu.png'
+    image_path_user = './ml-images/human_gu.png'
+    display_image(image_path_ai, image_path_user)
+
 # 勝敗を判定する関数
 def determine_winner(user_hands, ai_hands):
     if user_hands ==  "humei":
@@ -146,21 +153,6 @@ def countdown(user_hands,ai_hands):
     print(user_hands)
     print(ai_hands)
 
-    #for i in range(3, 0, -1):
-        #countdown_label.config(text=str(i))
-        #root.update()
-        #time.sleep(1)
-    countdown_label.config(text="じゃん!")
-    root.update()
-    time.sleep(1)
-    countdown_label.config(text="けん!!")
-    root.update()
-    time.sleep(1)
-    countdown_label.config(text="ぽんっ!!!")
-    root.update()
-    time.sleep(1) 
-
-    
     if user_hands == "humei":
         # root.destroy()
         # AI
@@ -255,8 +247,6 @@ def player_hands_thinking(q):
 def ai_hands_thinking(q):
     #過去のじゃんけんの手(ベクトル形式)をscikit_learn形式に
     Jprev_set = np.array([Jprev])
-    #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
-    jnow_set = np.array([j])
 
     #コンピュータが過去の手から人間の現在の手を予測
     jpredict = clf.predict(Jprev_set)
@@ -264,8 +254,6 @@ def ai_hands_thinking(q):
     #予測を元にコンピュータが決めた手
     #予測がグーならパー, チョキならグー, パーならチョキ
     comp_choice = (jpredict[0]+2)%3
-
-    clf.partial_fit(Jprev_set, jnow_set)
     
     if(comp_choice == 0):
         ai_hands = 'guu'
@@ -273,10 +261,7 @@ def ai_hands_thinking(q):
         ai_hands = 'tyoki'
     elif(comp_choice == 2):
         ai_hands = 'pa'
-    
-    #idと手をセットでプッシュする
-    result = (2, ai_hands)
-    
+    result = {'hand': ai_hands, 'hand_id': comp_choice}
     # 決定した手をqueueに保存
     q.put(result)
 
@@ -285,6 +270,7 @@ key = 0
 gesture_start_time = None
 gesture_last = None
 total_time = 0
+janken_start_time = None
 #メイン処理
 if __name__ == "__main__":
     with mp_hands.Hands(
@@ -293,7 +279,8 @@ if __name__ == "__main__":
         min_detection_confidence=0.7) as hands:
         q = queue.Queue()
         user_hands = 'humei'
-        
+        countdown_label.config(text="スタート！")
+        root.update()
         janken_start = False
 
         while cap.isOpened():
@@ -343,9 +330,60 @@ if __name__ == "__main__":
             #　グーを三秒間認識した場合スタート
             if (user_hands == "guu" and total_time >= 3) or janken_start:
                 janken_start = True
-                total_time = 0
-                gesture_start_time = None
                 
+                # じゃんけんが開始サれればタイマースタート
+                if janken_start_time is None:
+                    janken_start_time = time.time()
+                    p1 = Thread(target=ai_hands_thinking, args=(q,))
+                    p1.start()
+
+                # じゃんけんの時間を計算
+                janken_time = time.time() - janken_start_time
+                if janken_time <= 1:
+                    countdown_label.config(text="じゃん!")
+                    root.update()
+                elif janken_time <= 2:
+                    countdown_label.config(text="けん!")
+                    root.update()
+                elif janken_time <= 2.1:
+                    countdown_label.config(text="ぽんっ!!!")
+                    root.update()
+                elif janken_time <= 2.3:
+                    ai_return = q.get()
+                    comp_choice = ai_return['hand']
+                    p1.join()
+                    countdown(user_hands, comp_choice)
+                    if(user_hands == 'guu'):
+                        your_choice = 0
+                    elif(user_hands == 'tyoki'):
+                        your_choice = 1
+                    elif(user_hands == 'pa'):
+                        your_choice = 2
+                    elif(user_hands == 'humei'):
+                        your_choice = -1
+
+                    #過去のじゃんけんの手(ベクトル形式)をscikit_learn形式に
+                    Jprev_set = np.array([Jprev])
+                    #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
+                    jnow_set = np.array([j])
+                    
+                    jpredict = clf.predict(Jprev_set)
+                    
+                    comp_choice_id = ai_return['hand_id']
+
+                    clf.partial_fit(Jprev_set, jnow_set)
+                    #過去の手の末尾に現在のコンピュータの手を追加
+                    Jprev = np.append(Jprev[3:], janken_array[comp_choice_id])
+                    #過去の手の末尾に現在の人間の手を追加
+                    Jprev = np.append(Jprev[3:], janken_array[your_choice])
+                    root.update()
+                    init_game_image()
+                else:
+                    janken_start = False
+                    janken_start_time = None
+                    total_time = 0
+                    gesture_start_time = None
+
             # フレームを表示
             cv2.imshow(window_name, frame)
             key = cv2.waitKey(1) & 0xFF
