@@ -33,6 +33,8 @@ countdown_label.pack()
 result_label = tk.Label(root, font=("Helvetica", 24))
 result_label.pack()
 
+
+# 初期設定
 image_guu = Image.open('./ml-images/human_gu.png')
 photo_guu = ImageTk.PhotoImage(image_guu)
 image_label0 = tk.Label(root, image=photo_guu)
@@ -112,6 +114,11 @@ def display_image(image_path_ai,image_path_user):
     # image_label1.pack(side="right")
     root.update()
     time.sleep(1)
+
+def init_game_image():
+    image_path_ai = './ml-images/human_gu.png'
+    image_path_user = './ml-images/human_gu.png'
+    display_image(image_path_ai, image_path_user)
 
 # 勝敗を判定する関数
 def determine_winner(user_hands, ai_hands):
@@ -272,7 +279,7 @@ if __name__ == "__main__":
         min_detection_confidence=0.7) as hands:
         q = queue.Queue()
         user_hands = 'humei'
-        countdown_label.config(text="さいしょはグー")
+        countdown_label.config(text="スタート！")
         root.update()
         janken_start = False
 
@@ -369,11 +376,11 @@ if __name__ == "__main__":
                     Jprev = np.append(Jprev[3:], janken_array[comp_choice_id])
                     #過去の手の末尾に現在の人間の手を追加
                     Jprev = np.append(Jprev[3:], janken_array[your_choice])
+                    root.update()
+                    init_game_image()
                 else:
                     janken_start = False
                     janken_start_time = None
-                    countdown_label.config(text="さいしょはグー")
-                    root.update()
                     total_time = 0
                     gesture_start_time = None
 
