@@ -397,10 +397,6 @@ if __name__ == "__main__":
                     #過去の手の末尾に現在の人間の手を追加
                     Jprev = np.append(Jprev[3:], janken_array[your_choice])
                     root.update()
-                    # 過去のじゃんけんの手を保存
-                    pre_comp_hands = comp_choice
-                    pre_user_hands =user_hands
-                    # 過去のじゃんけんの手を表示する
 
                     if comp_choice == 0:
                         comp_hands = 'guu'
@@ -410,6 +406,10 @@ if __name__ == "__main__":
                         comp_hands = 'pa'
                     
                     countdown(user_hands, comp_hands)
+                    # 過去のじゃんけんの手を保存
+                    pre_comp_hands = comp_hands
+                    pre_user_hands =user_hands
+                    # 過去のじゃんけんの手を表示する
                     display_past_image(pre_user_hands,pre_comp_hands )
                 else:
                     janken_start = False
