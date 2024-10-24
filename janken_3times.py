@@ -387,22 +387,18 @@ if __name__ == "__main__":
                         #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
                         jnow_set = np.array([your_choice])
 
-                        jpredict = clf.predict(Jprev_set)
-                        
-                        #予測を元にコンピュータが決めた手
-                        #予測がグーならパー, チョキならグー, パーならチョキ
-                        comp_choice = (jpredict[0]+2)%3
-                        clf.partial_fit(Jprev_set, jnow_set)
-                        
-                        #過去の手の末尾に現在のコンピュータの手を追加
-                        Jprev = np.append(Jprev[3:], janken_array[comp_choice])
-                        #過去の手の末尾に現在の人間の手を追加
-                        Jprev = np.append(Jprev[3:], janken_array[your_choice])
-                        root.update()
-                        # 過去のじゃんけんの手を保存
-                        pre_comp_hands = comp_choice
-                        pre_user_hands = user_hands
-                        # 過去のじゃんけんの手を表示する
+                    jpredict = clf.predict(Jprev_set)
+                    
+                    #予測を元にコンピュータが決めた手
+                    #予測がグーならパー, チョキならグー, パーならチョキ
+                    comp_choice = (jpredict[0]+2)%3
+                    clf.partial_fit(Jprev_set, jnow_set)
+                    
+                    #過去の手の末尾に現在のコンピュータの手を追加
+                    Jprev = np.append(Jprev[3:], janken_array[comp_choice])
+                    #過去の手の末尾に現在の人間の手を追加
+                    Jprev = np.append(Jprev[3:], janken_array[your_choice])
+                    root.update()
 
                         if comp_choice == 0:
                             comp_hands = 'guu'
@@ -416,6 +412,10 @@ if __name__ == "__main__":
                     else:
                         comp_hands = random.choice(['guu', 'tyoki', 'pa'])
                     countdown(user_hands, comp_hands)
+                    # 過去のじゃんけんの手を保存
+                    pre_comp_hands = comp_hands
+                    pre_user_hands =user_hands
+                    # 過去のじゃんけんの手を表示する
                     display_past_image(pre_user_hands,pre_comp_hands )
                 else:
                     janken_start = False
