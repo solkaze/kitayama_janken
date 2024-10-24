@@ -120,6 +120,32 @@ def init_game_image():
     image_path_user = './ml-images/human_gu.png'
     display_image(image_path_ai, image_path_user)
 
+# 過去のじゃんけんの手を表示する
+def display_past_image(user_hands,ai_hands):
+    image_path_ai = "null"
+    image_path_user = "null"
+
+    # AIの手を表示する 左側
+    if ai_hands == "guu":   #グ-のとき
+        image_path_ai = './ml-images/human_gu.png'  # 画像ファイルのパスを実際のファイルパスに変更
+    if ai_hands == "tyoki":   #チョキのとき
+        image_path_ai = './ml-images/human_choki.png'
+    if ai_hands == "pa":  #パーのとき
+        image_path_ai = './ml-images/human_pa.png'
+
+
+    # ユーザの手を表示する 右側
+    if user_hands == "guu":   #グ-のとき
+        image_path_user = './ml-images/human_gu.png'  # 画像ファイルのパスを実際のファイルパスに変更
+    if user_hands == "tyoki":   #チョキのとき
+        image_path_user = './ml-images/human_choki.png'
+    if user_hands == "pa":  #パーのとき
+        image_path_user = './ml-images/human_pa.png'
+    if user_hands == "humei":
+        image_path_user = './ml-images/hatena.png'
+        
+    display_image(image_path_ai,image_path_user)
+
 # 勝敗を判定する関数
 def determine_winner(user_hands, ai_hands):
     if user_hands ==  "humei":
@@ -377,7 +403,11 @@ if __name__ == "__main__":
                     #過去の手の末尾に現在の人間の手を追加
                     Jprev = np.append(Jprev[3:], janken_array[your_choice])
                     root.update()
-                    init_game_image()
+                    # 過去のじゃんけんの手を保存
+                    pre_comp_hands = comp_choice
+                    pre_user_hands =user_hands
+                    # 過去のじゃんけんの手を表示する
+                    display_past_image(pre_user_hands,pre_comp_hands )
                 else:
                     janken_start = False
                     janken_start_time = None
