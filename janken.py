@@ -353,7 +353,7 @@ with mp_hands.Hands(min_detection_confidence=0.1, min_tracking_confidence=0.1) a
 
            
 
-            # countdown(user_hands,ai_hands)  # カウンタダウンを開始
+            countdown(user_hands,ai_hands)  # カウンタダウンを開始
 
 
         # フレームを表示
