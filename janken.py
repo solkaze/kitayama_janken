@@ -130,6 +130,9 @@ def determine_winner(user_hands, ai_hands):
     
 
 # じゃんけんの結果を表示
+# じゃんけんの手を表示
+
+
 def display_janken_result(result):
     # result_label = tk.Label(root, text=result, font=("Helvetica", 24))
     # root.update()
@@ -177,6 +180,7 @@ def countdown(user_hands,ai_hands):
     root.update()
     time.sleep(1)
     countdown_label.config(text="ぽんっ!!!")
+
     # 初期化
     # 音楽ファイルのロードと再生（ポンの音）
     pygame.mixer.init()
@@ -347,7 +351,10 @@ with mp_hands.Hands(min_detection_confidence=0.1, min_tracking_confidence=0.1) a
                 elif(comp_choice == 2):
                     ai_hands = 'pa'
 
-            countdown(user_hands,ai_hands)  # カウンタダウンを開始
+           
+
+            # countdown(user_hands,ai_hands)  # カウンタダウンを開始
+
 
         # フレームを表示
         cv2.imshow('Hand Count', frame)
