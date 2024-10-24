@@ -5,6 +5,7 @@ import random
 import numpy as np
 import tkinter as tk  # Tkinterをインポート
 import queue
+import pygame 
 from PIL import Image, ImageTk
 from threading import Thread
 
@@ -144,6 +145,25 @@ def display_janken_result(result):
     # root.update()
     # result_label.pack()
     result_label.config(text=result)
+
+    # 初期化
+    pygame.mixer.init()
+
+    # 音楽ファイルのロードと再生
+    if result == "You Win":
+        pygame.mixer.music.load('./ml-music/kati.mp3')  # 勝ちの場合の音
+    elif result == "AI Wins":
+        pygame.mixer.music.load('./ml-music/make.mp3')    # 負けの場合の音（適切なファイル名に変更）
+    elif result == "Draw":
+        pygame.mixer.music.load('./ml-music/hikiwake.mp3')    # あいこの場合の音（適切なファイル名に変更）
+    else:
+        print("不明な結果:", result)
+
+        return  # 不明な結果の場合は処理を終了
+
+    # 再生
+    pygame.mixer.music.play()
+
     root.update()
 
 def countdown(user_hands,ai_hands):
@@ -347,6 +367,11 @@ if __name__ == "__main__":
                     root.update()
                 elif janken_time <= 2.1:
                     countdown_label.config(text="ぽんっ!!!")
+
+                    pygame.mixer.init()
+                    pygame.mixer.music.load('./ml-music/pon.mp3')  
+                    pygame.mixer.music.play()
+
                     root.update()
                 elif janken_time <= 2.3:
                     ai_return = q.get()
