@@ -387,18 +387,18 @@ if __name__ == "__main__":
                         #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
                         jnow_set = np.array([your_choice])
 
-                    jpredict = clf.predict(Jprev_set)
-                    
-                    #予測を元にコンピュータが決めた手
-                    #予測がグーならパー, チョキならグー, パーならチョキ
-                    comp_choice = (jpredict[0]+2)%3
-                    clf.partial_fit(Jprev_set, jnow_set)
-                    
-                    #過去の手の末尾に現在のコンピュータの手を追加
-                    Jprev = np.append(Jprev[3:], janken_array[comp_choice])
-                    #過去の手の末尾に現在の人間の手を追加
-                    Jprev = np.append(Jprev[3:], janken_array[your_choice])
-                    root.update()
+                        jpredict = clf.predict(Jprev_set)
+                        
+                        #予測を元にコンピュータが決めた手
+                        #予測がグーならパー, チョキならグー, パーならチョキ
+                        comp_choice = (jpredict[0]+2)%3
+                        clf.partial_fit(Jprev_set, jnow_set)
+                        
+                        #過去の手の末尾に現在のコンピュータの手を追加
+                        Jprev = np.append(Jprev[3:], janken_array[comp_choice])
+                        #過去の手の末尾に現在の人間の手を追加
+                        Jprev = np.append(Jprev[3:], janken_array[your_choice])
+                        root.update()
 
                         if comp_choice == 0:
                             comp_hands = 'guu'
