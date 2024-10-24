@@ -3,8 +3,10 @@ import mediapipe as mp
 import time
 import random
 import numpy as np
+import pygame
 import tkinter as tk  # Tkinterをインポート
 from PIL import Image, ImageTk
+
 #多層ニューラルネットワーク
 #from sklearn.neural_network import MLPClassifier
 #単純パーセプトロン
@@ -129,11 +131,34 @@ def determine_winner(user_hands, ai_hands):
 
 # じゃんけんの結果を表示
 # じゃんけんの手を表示
+
+
 def display_janken_result(result):
     # result_label = tk.Label(root, text=result, font=("Helvetica", 24))
     # root.update()
     # result_label.pack()
     result_label.config(text=result)
+
+    #音をならす。
+
+    # 初期化
+    pygame.mixer.init()
+
+    # 音楽ファイルのロードと再生
+    if result == "You Win":
+        pygame.mixer.music.load('./ml-music/kati.mp3')  # 勝ちの場合の音
+    elif result == "AI Wins":
+        pygame.mixer.music.load('./ml-music/make.mp3')    # 負けの場合の音（適切なファイル名に変更）
+    elif result == "Draw":
+        pygame.mixer.music.load('./ml-music/hikiwake.mp3')    # あいこの場合の音（適切なファイル名に変更）
+    else:
+        print("不明な結果:", result)
+
+        return  # 不明な結果の場合は処理を終了
+
+    # 再生
+    pygame.mixer.music.play()
+
     root.update()
 
 def countdown(user_hands,ai_hands):
@@ -148,12 +173,19 @@ def countdown(user_hands,ai_hands):
         #root.update()
         #time.sleep(1)
     countdown_label.config(text="じゃん!")
+
     root.update()
     time.sleep(1)
     countdown_label.config(text="けん!!")
     root.update()
     time.sleep(1)
     countdown_label.config(text="ぽんっ!!!")
+
+    # 初期化
+    # 音楽ファイルのロードと再生（ポンの音）
+    pygame.mixer.init()
+    pygame.mixer.music.load('./ml-music/pon.mp3')  
+    pygame.mixer.music.play()
     root.update()
     time.sleep(1) 
 
@@ -318,9 +350,11 @@ with mp_hands.Hands(min_detection_confidence=0.1, min_tracking_confidence=0.1) a
                     ai_hands = 'tyoki'
                 elif(comp_choice == 2):
                     ai_hands = 'pa'
-                print("ch")
+
+           
 
             # countdown(user_hands,ai_hands)  # カウンタダウンを開始
+
 
         # フレームを表示
         cv2.imshow('Hand Count', frame)
