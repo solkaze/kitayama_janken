@@ -353,6 +353,7 @@ if __name__ == "__main__":
                     comp_choice = ai_return['hand']
                     p1.join()
                     countdown(user_hands, comp_choice)
+                    
                     if(user_hands == 'guu'):
                         your_choice = 0
                     elif(user_hands == 'tyoki'):
@@ -366,9 +367,9 @@ if __name__ == "__main__":
                     Jprev_set = np.array([Jprev])
                     #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
                     jnow_set = np.array([j])
-                    
+
                     jpredict = clf.predict(Jprev_set)
-                    
+
                     comp_choice_id = ai_return['hand_id']
 
                     clf.partial_fit(Jprev_set, jnow_set)
@@ -377,7 +378,6 @@ if __name__ == "__main__":
                     #過去の手の末尾に現在の人間の手を追加
                     Jprev = np.append(Jprev[3:], janken_array[your_choice])
                     root.update()
-                    init_game_image()
                 else:
                     janken_start = False
                     janken_start_time = None
