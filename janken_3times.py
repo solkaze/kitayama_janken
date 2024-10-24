@@ -5,6 +5,7 @@ import random
 import numpy as np
 import tkinter as tk  # Tkinterをインポート
 import queue
+import pygame 
 from PIL import Image, ImageTk
 from threading import Thread
 
@@ -170,6 +171,25 @@ def display_janken_result(result):
     # root.update()
     # result_label.pack()
     result_label.config(text=result)
+
+    # 初期化
+    pygame.mixer.init()
+
+    # 音楽ファイルのロードと再生
+    if result == "You Win":
+        pygame.mixer.music.load('./ml-music/kati.mp3')  # 勝ちの場合の音
+    elif result == "AI Wins":
+        pygame.mixer.music.load('./ml-music/make.mp3')    # 負けの場合の音（適切なファイル名に変更）
+    elif result == "Draw":
+        pygame.mixer.music.load('./ml-music/hikiwake.mp3')    # あいこの場合の音（適切なファイル名に変更）
+    else:
+        print("不明な結果:", result)
+
+        return  # 不明な結果の場合は処理を終了
+
+    # 再生
+    pygame.mixer.music.play()
+
     root.update()
 
 def countdown(user_hands,ai_hands):
@@ -263,34 +283,6 @@ def is_palm(landmarks):
 
 window_name = 'Hand Count'
 
-def player_hands_thinking(q):
-    #idと手をセットでプッシュする
-    result = (1, user_hands)
-
-    # 決定した手をqueueに保存
-    q.put(result)
-
-def ai_hands_thinking(q):
-    #過去のじゃんけんの手(ベクトル形式)をscikit_learn形式に
-    Jprev_set = np.array([Jprev])
-
-    #コンピュータが過去の手から人間の現在の手を予測
-    jpredict = clf.predict(Jprev_set)
-
-    #予測を元にコンピュータが決めた手
-    #予測がグーならパー, チョキならグー, パーならチョキ
-    comp_choice = (jpredict[0]+2)%3
-    
-    if(comp_choice == 0):
-        ai_hands = 'guu'
-    elif(comp_choice == 1):
-        ai_hands = 'tyoki'
-    elif(comp_choice == 2):
-        ai_hands = 'pa'
-    result = {'hand': ai_hands, 'hand_id': comp_choice}
-    # 決定した手をqueueに保存
-    q.put(result)
-
 key = 0
 # 各ジェスチャーの計測時間と最後に認識されたジェスチャー
 gesture_start_time = None
@@ -360,8 +352,6 @@ if __name__ == "__main__":
                 # じゃんけんが開始サれればタイマースタート
                 if janken_start_time is None:
                     janken_start_time = time.time()
-                    p1 = Thread(target=ai_hands_thinking, args=(q,))
-                    p1.start()
 
                 # じゃんけんの時間を計算
                 janken_time = time.time() - janken_start_time
@@ -373,12 +363,14 @@ if __name__ == "__main__":
                     root.update()
                 elif janken_time <= 2.1:
                     countdown_label.config(text="ぽんっ!!!")
+
+                    pygame.mixer.init()
+                    pygame.mixer.music.load('./ml-music/pon.mp3')  
+                    pygame.mixer.music.play()
+
                     root.update()
                 elif janken_time <= 2.3:
-                    ai_return = q.get()
-                    comp_choice = ai_return['hand']
-                    p1.join()
-                    countdown(user_hands, comp_choice)
+                    
                     if(user_hands == 'guu'):
                         your_choice = 0
                     elif(user_hands == 'tyoki'):
@@ -391,15 +383,17 @@ if __name__ == "__main__":
                     #過去のじゃんけんの手(ベクトル形式)をscikit_learn形式に
                     Jprev_set = np.array([Jprev])
                     #現在のじゃんけんの手(0~2の整数)をscikit_learn形式に
-                    jnow_set = np.array([j])
-                    
+                    jnow_set = np.array([your_choice])
+
                     jpredict = clf.predict(Jprev_set)
                     
-                    comp_choice_id = ai_return['hand_id']
-
+                    #予測を元にコンピュータが決めた手
+                    #予測がグーならパー, チョキならグー, パーならチョキ
+                    comp_choice = (jpredict[0]+2)%3
                     clf.partial_fit(Jprev_set, jnow_set)
+                    
                     #過去の手の末尾に現在のコンピュータの手を追加
-                    Jprev = np.append(Jprev[3:], janken_array[comp_choice_id])
+                    Jprev = np.append(Jprev[3:], janken_array[comp_choice])
                     #過去の手の末尾に現在の人間の手を追加
                     Jprev = np.append(Jprev[3:], janken_array[your_choice])
                     root.update()
@@ -407,6 +401,15 @@ if __name__ == "__main__":
                     pre_comp_hands = comp_choice
                     pre_user_hands =user_hands
                     # 過去のじゃんけんの手を表示する
+
+                    if comp_choice == 0:
+                        comp_hands = 'guu'
+                    elif comp_choice == 1:
+                        comp_hands = 'tyoki'
+                    elif comp_choice == 2:
+                        comp_hands = 'pa'
+                    
+                    countdown(user_hands, comp_hands)
                     display_past_image(pre_user_hands,pre_comp_hands )
                 else:
                     janken_start = False
