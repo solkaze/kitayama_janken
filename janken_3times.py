@@ -28,10 +28,10 @@ root.title("じゃんけん")
 # ウィンドウのサイズを設定
 root.geometry("699x400")  # 幅x高さ
 
-countdown_label = tk.Label(root, font=("Helvetica", 48))
+countdown_label = tk.Label(root, font=("HGP創英角ﾎﾟｯﾌﾟ体", 48))
 countdown_label.pack()
 
-result_label = tk.Label(root, font=("Helvetica", 24))
+result_label = tk.Label(root, font=("Ink Free", 36))
 result_label.pack()
 
 
@@ -45,10 +45,10 @@ image_label0.pack(side="left")
 image_label1 = tk.Label(root, image=photo_guu)
 image_label1.pack(side="right")
 
-left_label = tk.Label(root, text="AI")
+left_label = tk.Label(root, font=(20), text="AI", background="cyan")
 left_label.pack(side='left')
 
-right_label = tk.Label(root, text="あなた")
+right_label = tk.Label(root, font=(20), text="あなた", background="pink")
 right_label.pack(side='right')
 
 root.update()
