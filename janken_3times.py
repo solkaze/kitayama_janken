@@ -297,7 +297,7 @@ if __name__ == "__main__":
         min_detection_confidence=0.7) as hands:
         q = queue.Queue()
         user_hands = 'humei'
-        countdown_label.config(text="スタート！")
+        countdown_label.config(text="start!")
         root.update()
         janken_start = False
 
