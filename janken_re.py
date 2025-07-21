@@ -26,6 +26,8 @@ PROGRESS_BAR_Y = SCREEN_HEIGHT - 35 # プログレスバーのY座標
 AI_AREA_X = SCREEN_WIDTH * 0.25
 USER_AREA_X = SCREEN_WIDTH * 0.75
 
+CENTER_TEXT_Y = 550
+
 # --- アセットパス定義 ---
 IMAGE_PATH = {"guu": './ml-images/human_gu.png',
               "tyoki": './ml-images/human_choki.png',
@@ -115,7 +117,11 @@ rock_timer_start, countdown_timer, result_display_timer = 0, 0, 0
 running = True
 while running:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: running = False
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                running = False
 
     ret, frame = cap.read()
     if ret:
@@ -172,6 +178,10 @@ while running:
     draw_text("あなた", font_medium, BLACK, screen, USER_AREA_X, PLAYER_NAME_Y)
     draw_text(f"認識中の手: {current_user_hand}", font_small, RED, screen, 10, 10, center=False)
 
+    cam_pos = (USER_AREA_X - CAM_DISPLAY_SIZE / 2, CONTENT_Y)
+    hand_image_pos = (AI_AREA_X - HAND_IMAGE_SIZE / 2, CONTENT_Y + (CAM_DISPLAY_SIZE - HAND_IMAGE_SIZE) / 2)
+    user_hand_image_pos = (USER_AREA_X - HAND_IMAGE_SIZE / 2, CONTENT_Y + (CAM_DISPLAY_SIZE - HAND_IMAGE_SIZE) / 2)
+
     # 各要素のX, Y座標を定数から計算
     cam_pos = (USER_AREA_X - CAM_DISPLAY_SIZE / 2, CONTENT_Y)
     hand_image_pos = (AI_AREA_X - HAND_IMAGE_SIZE / 2, CONTENT_Y + (CAM_DISPLAY_SIZE - HAND_IMAGE_SIZE) / 2)
@@ -190,11 +200,11 @@ while running:
         else:
             draw_text("グーの形で3秒間キープしてね！", font_medium, BLUE, screen, SCREEN_WIDTH / 2, PROMPT_Y)
     elif game_state == "countdown":
-        draw_text(countdown_text, font_large, BLACK, screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        draw_text(countdown_text, font_large, BLACK, screen, SCREEN_WIDTH / 2, CENTER_TEXT_Y)
         if 'cam_surface' in locals(): screen.blit(cam_surface, cam_pos)
         screen.blit(images["hatena"], hand_image_pos)
     elif game_state == "result":
-        draw_text(result_text, font_large, result_color, screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        draw_text(result_text, font_large, result_color, screen, SCREEN_WIDTH / 2, CENTER_TEXT_Y)
         screen.blit(images[ai_hand], hand_image_pos)
         user_img = images[final_user_hand] if final_user_hand != 'humei' else images['hatena']
         screen.blit(user_img, user_hand_image_pos)
