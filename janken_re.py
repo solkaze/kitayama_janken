@@ -10,8 +10,6 @@ import math
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 WHITE, BLACK, GRAY, LIGHT_GRAY = (255, 255, 255), (0, 0, 0), (200, 200, 200), (220, 220, 220)
 GREEN, RED, BLUE, ORANGE = (50, 200, 50), (250, 50, 50), (50, 50, 250), (255, 165, 0)
-
-
 # サイズ
 CAM_DISPLAY_SIZE = 480
 HAND_IMAGE_SIZE = 250
@@ -25,7 +23,6 @@ PROGRESS_BAR_Y = SCREEN_HEIGHT - 35 # プログレスバーのY座標
 # 水平位置 (X座標)
 AI_AREA_X = SCREEN_WIDTH * 0.25
 USER_AREA_X = SCREEN_WIDTH * 0.75
-
 CENTER_TEXT_Y = 550
 
 # --- アセットパス定義 ---
@@ -58,7 +55,7 @@ except FileNotFoundError:
     font_small = pygame.font.Font(None, 30)
     font_medium = pygame.font.Font(None, 50)
     font_large = pygame.font.Font(None, 80)
-# ★変更: 定数を使用
+# 定数を使用
 images = {key: pygame.transform.scale(pygame.image.load(path), (HAND_IMAGE_SIZE, HAND_IMAGE_SIZE)) for key, path in IMAGE_PATH.items()}
 sounds = {key: pygame.mixer.Sound(path) for key, path in SOUND_PATH.items()}
 mp_hands = mp.solutions.hands
@@ -171,7 +168,7 @@ while running:
     elif game_state == "result":
         if pygame.time.get_ticks() - result_display_timer > 3000: game_state = "waiting"; countdown_text = ""
 
-    # --- ★★★ 描画処理（定数を使用） ★★★ ---
+    # --- 画面の描画 ---
     screen.fill(WHITE)
     draw_text("AI じゃんけん", font_medium, BLACK, screen, SCREEN_WIDTH / 2, HEADER_Y)
     draw_text("AI", font_medium, BLACK, screen, AI_AREA_X, PLAYER_NAME_Y)
@@ -208,7 +205,7 @@ while running:
         screen.blit(images[ai_hand], hand_image_pos)
         user_img = images[final_user_hand] if final_user_hand != 'humei' else images['hatena']
         screen.blit(user_img, user_hand_image_pos)
-
+        
     pygame.display.flip()
     clock.tick(30)
 
